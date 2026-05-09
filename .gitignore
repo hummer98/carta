@@ -10,3 +10,4 @@ env.log
 
 # cmux-team local task / agent state
 .team/
+.worktrees/
