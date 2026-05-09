@@ -1,5 +1,6 @@
 {
   "name": "hummer98-carta",
+  "description": "carta — 全プロジェクト共通の開発憲法 (constitution) を CLAUDE.md に適用・同期するための Claude Code Plugin marketplace。",
   "owner": {
     "name": "hummer98",
     "email": "github@hummer98"
