@@ -1,0 +1,23 @@
+{
+  "name": "hummer98-carta",
+  "owner": {
+    "name": "hummer98",
+    "email": "github@hummer98"
+  },
+  "plugins": [
+    {
+      "name": "carta",
+      "source": "./",
+      "description": "統一的な開発憲法 (constitution) を保持し、各プロジェクトの CLAUDE.md に適用・同期する Claude Code Plugin。",
+      "version": "0.1.0",
+      "author": {
+        "name": "hummer98"
+      },
+      "repository": "https://github.com/hummer98/carta",
+      "license": "MIT",
+      "keywords": ["claude-skill", "claude-code-plugin", "claude-md", "constitution", "principles"],
+      "category": "documentation",
+      "tags": ["claude-md", "constitution", "principles", "guidelines", "charter"]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+# Claude Code local settings
+.claude/settings.local.json
+
+# OS
+.DS_Store
+
+# Local env / logs (CONTAINS SECRETS — never commit)
+.envrc
+env.log
+
+# cmux-team local task / agent state
+.team/

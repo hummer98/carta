@@ -1,0 +1,10 @@
+{
+  "name": "carta",
+  "version": "0.1.0",
+  "description": "統一的な開発憲法 (constitution) を保持し、各プロジェクトの CLAUDE.md に適用・同期する Claude Code Plugin。",
+  "author": {
+    "name": "hummer98"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/hummer98/carta"
+}
