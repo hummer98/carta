@@ -30,10 +30,29 @@ assets/constitution.md  ── /carta:apply ──>  <project>/CLAUDE.md
                                               └───────────────────┘
 ```
 
-- The block between `<!-- carta:begin v0.1.0 sha=abc1234 -->` and `<!-- carta:end -->` is managed by carta
+- The block between `<!-- carta:begin v0.2.0 sha=abc1234 -->` and `<!-- carta:end -->` is managed by carta
 - Everything outside the markers is **never modified**
 - Re-applying the same version is a no-op (idempotent)
 - The `sha` in the begin marker pins the body content to the version, so manual edits are detectable
+
+## Profiles
+
+Bundle-only optional add-ons that get concatenated to the default constitution at apply time.
+
+- Available profiles live under `assets/profiles/*.md`. v0.2.0 ships `typescript` and `flutter` as minimal placeholders.
+- Pick one or more with `--profile`:
+
+  ```
+  /carta:apply --profile typescript
+  /carta:apply --profile typescript,flutter
+  /carta:apply --profile=                # explicitly drop all profiles (recommended form)
+  ```
+
+- Running `/carta:apply` without `--profile` inherits the profiles already recorded in the existing marker.
+- The marker records the chosen set: `<!-- carta:begin v0.2.0 sha=abc1234 profiles=flutter,typescript -->`
+- `sha` is computed over the **concatenated** body, so changing the profile set is detected as a real update.
+- Markers with no `profiles=` attribute (v0.1.0 style) are treated as "no profiles" and remain compatible — the resulting `sha` is byte-for-byte identical to v0.1.0.
+- Note: `/carta:show --profile=` is **not** the way to view the default — it errors with "name required". Use `/carta:show` (no args) instead.
 
 ## Installation
 
@@ -46,9 +65,9 @@ assets/constitution.md  ── /carta:apply ──>  <project>/CLAUDE.md
 
 | Command | What it does |
 |---|---|
-| `/carta:apply [<path>] [--force]` | Apply the latest constitution to the target `CLAUDE.md`. Shows a diff first and waits for approval. |
-| `/carta:show [--meta]` | Print the constitution body bundled with this plugin. `--meta` adds a one-line header with version / last-updated / maintainer. |
-| `/carta:diff [<path>]` | Dry run of `/carta:apply` — show the diff but don't write. |
+| `/carta:apply [<path>] [--profile <names>] [--force]` | Apply the latest constitution (+ chosen profiles) to the target `CLAUDE.md`. Shows a diff first and waits for approval. |
+| `/carta:show [--meta] [--profile <name>]` | Print the constitution body (or a single profile body) bundled with this plugin. `--meta` adds a one-line header. |
+| `/carta:diff [<path>] [--profile <names>]` | Dry run of `/carta:apply` — show the diff but don't write. |
 
 By default, the target is the current repository's `CLAUDE.md` (resolved via `git rev-parse --show-toplevel`). Pass a path to target a different file.
 
@@ -65,7 +84,7 @@ This project uses Bun and ships to Cloudflare Workers. Run `bun test` before pus
 After `/carta:apply`:
 
 ```markdown
-<!-- carta:begin v0.1.0 sha=abc1234 -->
+<!-- carta:begin v0.2.0 sha=abc1234 -->
 # 開発憲法
 
 このセクションは [carta](https://github.com/hummer98/carta) によって管理されている。
@@ -93,6 +112,8 @@ The constitution itself is just `assets/constitution.md` in this repository. To 
 4. Tag and release (`/release`)
 5. Run `/carta:apply` in each project to pick up the new version
 
+Add a new profile by placing a Markdown file (with a single trailing newline) under `assets/profiles/` and bumping the plugin version. The first line should be `<!-- carta-profile: <name> -->` — this comment is a frozen constant; do not change it after release (changing it breaks every existing `sha`).
+
 ## Versioning
 
 - [SemVer](https://semver.org/): major = breaking change to constitution structure or marker format, minor = new sections, patch = wording fixes.
@@ -100,9 +121,9 @@ The constitution itself is just `assets/constitution.md` in this repository. To 
 
 ## Status
 
-v0.1.0 — MVP. Includes `/carta:apply`, `/carta:show`, `/carta:diff`, and the marker-based sync logic.
+v0.2.0 — Profiles. Default constitution + opt-in language/framework profiles (typescript, flutter shipped as minimal placeholders). v0.1.0 markers remain fully compatible; the `sha` is preserved when re-applied with no profiles.
 
-Out of scope for v0.1: multi-`CLAUDE.md` mono-repo support, per-project override layers, CI checks. See `docs/seed.md` §10 for the full scope policy.
+Out of scope for v0.x: multi-`CLAUDE.md` mono-repo support, per-project override layers, CI checks. See `docs/seed.md` §10 for the full scope policy.
 
 ## License
 

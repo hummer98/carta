@@ -30,10 +30,29 @@ assets/constitution.md  ── /carta:apply ──>  <project>/CLAUDE.md
                                               └────────────────────┘
 ```
 
-- `<!-- carta:begin v0.1.0 sha=abc1234 -->` と `<!-- carta:end -->` で囲まれた領域だけを carta が管理する
+- `<!-- carta:begin v0.2.0 sha=abc1234 -->` と `<!-- carta:end -->` で囲まれた領域だけを carta が管理する
 - マーカー外は **絶対に変更しない**
 - 同じバージョンを再適用しても変化なし（idempotent）
 - begin マーカーの `sha` で本文の改変を検知できる
+
+## プロファイル
+
+デフォルト憲法に追加で連結適用できる、用途別のオプションコンテンツ。
+
+- `assets/profiles/*.md` に配置（v0.2.0 では `typescript` と `flutter` を最小プレースホルダとして同梱）
+- `--profile` で 1 個以上を選択:
+
+  ```
+  /carta:apply --profile typescript
+  /carta:apply --profile typescript,flutter
+  /carta:apply --profile=                # 明示的にプロファイルなしへ戻す（推奨形式）
+  ```
+
+- `/carta:apply` を引数なしで実行すると、既存マーカーに記録されている profiles をそのまま引き継いで再適用する
+- 選択されたプロファイル一覧はマーカーに記録される: `<!-- carta:begin v0.2.0 sha=abc1234 profiles=flutter,typescript -->`
+- `sha` は **連結後の本文** から計算するので、プロファイル組み合わせの変更は更新として検出される
+- `profiles=` 属性のない v0.1.0 マーカーは「プロファイルなし」として完全互換動作する（再 apply しても sha は同一）
+- 注: `/carta:show --profile=` は **デフォルト憲法を見るためではなく** name 必須エラーになる。デフォルトを見たい場合は `/carta:show`（引数なし）を使う
 
 ## インストール
 
@@ -46,9 +65,9 @@ assets/constitution.md  ── /carta:apply ──>  <project>/CLAUDE.md
 
 | コマンド | 役割 |
 |---|---|
-| `/carta:apply [<path>] [--force]` | 対象の `CLAUDE.md` に最新の憲法を適用する。書き込み前に diff を提示して承認を取る |
-| `/carta:show [--meta]` | このプラグインにバンドルされている憲法本体を表示する。`--meta` で version / last-updated / maintainer の 1 行ヘッダも併記 |
-| `/carta:diff [<path>]` | `/carta:apply` の dry-run。差分のみ表示し、書き込まない |
+| `/carta:apply [<path>] [--profile <names>] [--force]` | 対象の `CLAUDE.md` に最新の憲法（+ 指定プロファイル）を適用する。書き込み前に diff を提示して承認を取る |
+| `/carta:show [--meta] [--profile <name>]` | このプラグインにバンドルされている憲法本体（または指定プロファイル本文）を表示する。`--meta` で 1 行ヘッダも併記 |
+| `/carta:diff [<path>] [--profile <names>]` | `/carta:apply` の dry-run。差分のみ表示し、書き込まない |
 
 引数なしの場合は `git rev-parse --show-toplevel` で解決したリポジトリ root の `CLAUDE.md` が対象になる。
 
@@ -65,7 +84,7 @@ Before（`./CLAUDE.md`）:
 After `/carta:apply`:
 
 ```markdown
-<!-- carta:begin v0.1.0 sha=abc1234 -->
+<!-- carta:begin v0.2.0 sha=abc1234 -->
 # 開発憲法
 
 このセクションは [carta](https://github.com/hummer98/carta) によって管理されている。
@@ -93,6 +112,8 @@ After `/carta:apply`:
 4. tag を打って release（`/release`）
 5. 各プロジェクトで `/carta:apply` を実行して新バージョンを取り込む
 
+新しいプロファイルを追加するには、`assets/profiles/` に Markdown ファイル（末尾改行 1 個必須）を置いて plugin version を bump するだけ。先頭行は `<!-- carta-profile: <name> -->` 固定（リリース後に書式を変更すると既存 sha が壊れるので **凍結された定数** として扱う）。
+
 ## バージョニング
 
 - [SemVer](https://semver.org/): major = 憲法構造・マーカー形式の破壊的変更、minor = 新セクション追加、patch = 文言修正
@@ -100,9 +121,9 @@ After `/carta:apply`:
 
 ## ステータス
 
-v0.1.0 — MVP。`/carta:apply`、`/carta:show`、`/carta:diff` とマーカー方式の同期ロジックを含む。
+v0.2.0 — Profiles。デフォルト憲法に加えて、言語/フレームワーク別のプロファイル（`typescript`、`flutter` を最小プレースホルダとして同梱）を連結適用できる。v0.1.0 マーカーとは完全互換で、profiles 空のまま再 apply しても sha は同一。
 
-v0.1.0 のスコープ外: 複数 `CLAUDE.md`（mono-repo）対応、プロジェクト別 override レイヤ、CI 検出など。詳細は `docs/seed.md` §10 を参照。
+v0.x のスコープ外: 複数 `CLAUDE.md`（mono-repo）対応、プロジェクト別 override レイヤ、CI 検出など。詳細は `docs/seed.md` §10 を参照。
 
 ## License
 

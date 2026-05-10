@@ -73,15 +73,31 @@
 CLAUDE.md 内に以下のマーカーで囲まれた領域を carta が管理する:
 
 ```markdown
-<!-- carta:begin v0.1.0 sha=abc1234 -->
-（憲法本体テキストがここに展開される）
+<!-- carta:begin v0.2.0 sha=abc1234 profiles=flutter,typescript -->
+（憲法本体テキスト + 指定プロファイル本文の連結結果がここに展開される）
 <!-- carta:end -->
 ```
 
-- `v0.1.0` — 適用された carta のバージョン
-- `sha=abc1234` — `assets/constitution.md` の SHA-256 short hash (先頭 7 文字)。ローカル編集が無いことを検証する
+- `v0.2.0` — 適用された carta のバージョン
+- `sha=abc1234` — **連結後本文** の SHA-256 short hash (先頭 7 文字)。ローカル編集が無いことを検証する。**profiles 空時は `assets/constitution.md` を `cat` したバイト列と完全一致するため v0.1.0 と sha も一致する**
+- `profiles=flutter,typescript` — 適用済みプロファイル名のアルファベット順カンマ区切り。**プロファイル指定なし時は属性自体を省略する**（v0.1.0 マーカーと同形）
 - マーカー外の内容は **絶対に変更しない**
 - マーカーの位置 (CLAUDE.md の冒頭か末尾か) は適用時に決まる: 既存 CLAUDE.md があればその冒頭に挿入、無ければ新規作成して冒頭に置く
+
+マーカー検出/解析の正規表現（apply Step 3 の grep と解析の両方で同じパターンを使う）:
+
+```
+^<!-- carta:begin v[^ ]+ sha=[0-9a-f]+( profiles=[A-Za-z0-9_,-]+)? -->$
+^<!-- carta:end -->$
+```
+
+`profiles=` 属性はオプショナル（`(...)? ` 全体が optional）。`profiles=` 値の文字種は `[A-Za-z0-9_,-]+`（空白・`/`・`.` などは含めない）。`[^ ]+` は次の空白文字までで version トークンを終え、version 文字列に空白が混入することは禁止する。
+
+解析用（capture 群を使う版、§5.2 / commands/apply.md Step 4c）:
+
+```
+<!-- carta:begin v(\S+) sha=([0-9a-f]+)( profiles=([A-Za-z0-9_,-]+))? -->
+```
 
 ### 3.3 idempotency 保証
 
@@ -109,8 +125,11 @@ CLAUDE.md 内に以下のマーカーで囲まれた領域を carta が管理す
 
 **引数**:
 
-- 引数なし: カレントディレクトリの CLAUDE.md を更新
+- 引数なし: カレントディレクトリの CLAUDE.md を更新（既存マーカーの profiles を引き継ぐ）
 - `/carta:apply <path>`: 指定パスの CLAUDE.md を更新
+- `/carta:apply --profile <names>` / `--profile=<names>`: カンマ区切りで連結適用するプロファイルを指定（v0.2.0〜、§15 参照）
+- `/carta:apply --profile=`（空指定の推奨形式）: プロファイル全外し
+- `/carta:apply --force`: マーカー内 sha 不一致でも上書きを許可
 
 **安全性**:
 
@@ -125,9 +144,16 @@ CLAUDE.md 内に以下のマーカーで囲まれた領域を carta が管理す
 
 ### 4.3 `/carta:show`
 
-**目的**: 現在 plugin にバンドルされている憲法本体テキストを表示する。
+**目的**: 現在 plugin にバンドルされている憲法本体テキスト（または指定プロファイル本文）を表示する。
 
-**実行内容**: `assets/constitution.md` の内容を読み取って表示する。`--meta` オプションでバージョン・hash 等のメタ情報も併記。
+**実行内容**: `assets/constitution.md`（または `assets/profiles/<name>.md`）の内容を読み取って表示する。`--meta` オプションでバージョン・hash 等のメタ情報も併記。
+
+**引数**:
+
+- 引数なし: 憲法本文をそのまま出力
+- `--meta`: ファイル冒頭のメタコメントから 1 行ヘッダ（`[carta] version: ...` または `[carta-profile] name: ...`）を整形して先頭に置く
+- `--profile <name>` / `--profile=<name>`: 単一プロファイル本文を表示（v0.2.0〜）。`--meta` と併用可能
+- `--profile=`（空指定）は **show では name 必須エラー**（`/carta:apply` の `--profile=` 全外しと意図的に非対称）。デフォルト憲法を見たい場合は引数なしの `/carta:show`
 
 ---
 
@@ -290,11 +316,11 @@ carta/
 
 **含めない (v0.2 以降)**:
 
-- `/carta:diff` (apply 内で diff 確認するので一旦不要かもしれない。実装の優先度は中)
+- `/carta:diff` (apply 内で diff 確認するので一旦不要かもしれない。実装の優先度は中) → **v0.1.0 で実装済み**
 - 複数 CLAUDE.md の一括同期
-- 憲法のリポジトリ別カスタマイズレイヤ (override)
 - CI で「憲法が古いリポジトリ」を検出する機能
-- 憲法を分割して必要なセクションだけ適用するモード
+- ~~憲法のリポジトリ別カスタマイズレイヤ (override)~~ → **v0.2.0 で profiles 機能として実現** (§15 参照)
+- ~~憲法を分割して必要なセクションだけ適用するモード~~ → **v0.2.0 で profiles 機能として実現** (§15 参照)
 
 ---
 
@@ -342,7 +368,7 @@ carta/
 
 1. 憲法本文の章立て構成は最終的にどうするか? (ユーザーから素案受領後に確定)
 2. CLAUDE.md 冒頭にマーカーを置くか、末尾に置くか? → **冒頭推奨** (Claude が読み始めた時点で原則が目に入る)。ただし既存 CLAUDE.md に大きな見出しがある場合は読みづらい可能性あり。要検討
-3. プロジェクト別カスタマイズレイヤは v0.1 では入れない方針だが、将来どう実現するか? (案: `.carta/local.md` をリポジトリに置き、apply 時にマーカーブロックの直後に挿入)
+3. **[解決]** プロジェクト別カスタマイズレイヤ → v0.2.0 で `assets/profiles/*.md` の連結方式として実現。`.carta/local.md` 案ではなく、プラグイン内同梱・引数選択方式を採用（§15 参照）。
 4. 既存プロジェクト CLAUDE.md の「言語ルール」「コーディング規約」セクションを憲法側に巻き取るリファクタガイドが欲しいか? (`/carta:migrate` のような移行コマンド)
 
 ---
@@ -351,6 +377,69 @@ carta/
 
 - **using-cmux** (`~/git/using-cmux`): 同じ author の Claude Code Plugin。レイアウト・配布方法・release.md のテンプレート元
 - **cmux-team** (`~/git/cmux-team`): 親プロジェクト。本構想が生まれた文脈
+
+---
+
+## 15. プロファイル仕様 (v0.2.0 で追加)
+
+### 15.1 概要
+
+デフォルト憲法に追加で連結適用できる、用途別オプションコンテンツ。`assets/profiles/<name>.md` として同梱し、`/carta:apply --profile <names>` で連結する。
+
+### 15.2 連結アルゴリズム
+
+```
+function build_combined_body(default_body, profile_names):
+  # 1. プロファイル名を正規化（trim → 空除去 → アルファベット順 sort -u）
+  normalized = sort_unique_alphabetical(strip_whitespace(profile_names))
+  # 2. 各 part 末尾 LF を「ちょうど 1 個」に正規化（剥がさず保つ）
+  parts = [normalize_trailing_lf_to_one(default_body)]
+  for name in normalized:
+    path = "assets/profiles/" + name + ".md"
+    if not file_exists(path): fail("profile not found: " + path)
+    parts.append(normalize_trailing_lf_to_one(read(path)))
+  # 3. 各 part 末尾 LF を保持したまま part 間に "\n---\n\n"（6 byte）を挿入
+  combined = parts[0]
+  for p in parts[1:]:
+    combined = combined + "\n---\n\n" + p
+  return (combined, normalized)
+```
+
+**不変条件**: profiles が空のとき `combined` は `cat assets/constitution.md` と byte-for-byte 完全一致する → v0.1.0 sha と一致（実機検証値: `f0c10c8`）。
+
+### 15.3 引数仕様
+
+apply / diff / show の引数仕様は §4 / commands/{apply,diff,show}.md を参照。要点のみ:
+
+- `--profile <names>` / `--profile=<names>`: カンマ区切り
+- 空指定の推奨形式は `--profile=`（イコール接続）。`--profile ""` は環境依存で非推奨
+- apply / diff: 引数未指定なら既存マーカーから profiles を引き継ぐ。`--profile=` で全外し
+- show: `--profile=`（空）は **name 必須エラー**（apply との意図的な非対称）
+
+### 15.4 マーカー拡張
+
+§3.2 参照。`profiles=` 属性は **空時は省略**（v0.1.0 マーカーと完全同形）し、非空時のみアルファベット順正規化値を出力する。
+
+### 15.5 不存在エラーの方針
+
+- 指定された `assets/profiles/<name>.md` が無ければ即座に停止（自動作成しない）
+- 名前の許容文字種は `[A-Za-z0-9_-]+`（空白・`/`・`.` は禁止）
+- 既存マーカーの `profiles=` 値が指す `.md` が無いケースも同じエラーで停止し、誘導メッセージで「`--profile=正しい値` で上書きしてください」と案内
+- profiles 間の依存関係・自動検出・プロファイル別 sha 検証はサポートしない
+
+### 15.6 v0.1.0 互換性ルール
+
+- v0.1.0 マーカーは「プロファイルなし」として完全互換動作
+- v0.1.0 で適用済み CLAUDE.md に v0.2.0 を再 apply（profiles 空のまま）すると、本文と sha は変わらず、version 文字列のみ更新される
+- sha 計算は v0.1.0 の `(sha256sum||shasum -a 256) "$SRC" | awk '{print $1}'` 方式と **同値の sha** を生成する。「sha 不一致でも body 一致なら idempotent」フォールバックは採用しない（手編集検出の安全性を維持）
+
+### 15.7 凍結された定数
+
+以下はリリース後に **絶対に変更しない**。書式が変わると既存 CLAUDE.md の sha が破壊される:
+
+- プロファイル本文先頭の `<!-- carta-profile: NAME -->` 書式
+- 連結区切り文字列: 各 part 末尾 LF + `"\n---\n\n"`（6 byte リテラル）
+- 末尾改行ポリシー: `assets/constitution.md` および `assets/profiles/*.md` は常に末尾 LF 1 個で保存する運用ルール（`.editorconfig` は新規作成しない方針）
 
 ---
 
