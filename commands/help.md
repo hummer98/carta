@@ -20,14 +20,19 @@ carta プラグインの全コマンド・使い方・マーカー仕様の要�
 | /carta:apply [<path>] [--profile <names>] [--force] | 対象 CLAUDE.md に憲法を適用 |
 | /carta:diff [<path>] [--profile <names>] | apply の dry-run（書き込まない） |
 | /carta:show [--meta] [--profile <name>] | 憲法本体 / プロファイル本文を表示 |
+| /carta:migrate [<path>] [--profile <names>] [--include-medium] [--apply] | マーカー外の重複記述を検出し削除候補を提示（デフォルト dry-run） |
 | /carta:help | このヘルプを表示 |
 
 ## よく使う例
-- 新規プロジェクトに適用:           /carta:apply
-- 既存に TypeScript プロファイル追加: /carta:apply --profile typescript
-- 複数プロファイル:                  /carta:apply --profile typescript,flutter
-- 適用前に差分確認:                  /carta:diff
-- 現在の憲法を確認:                  /carta:show --meta
+- 新規プロジェクトに適用:                /carta:apply
+- 既存に TypeScript プロファイル追加:     /carta:apply --profile typescript
+- 複数プロファイル:                       /carta:apply --profile typescript,flutter
+- 適用前に差分確認:                       /carta:diff
+- 現在の憲法を確認:                       /carta:show --meta
+- carta 導入直後の掃除（dry-run → 適用）: /carta:migrate  →  /carta:migrate --apply
+
+注: マーカー内 sha 不一致時は `/carta:apply --force` で先に同期する。
+    `/carta:migrate` 自身は `--force` を受け取らない（責務分離）。
 
 ## マーカー仕様
 CLAUDE.md 内の `<!-- carta:begin v<VER> sha=<HASH> profiles=<NAMES> -->`

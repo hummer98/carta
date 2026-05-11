@@ -14,6 +14,7 @@ carta は **全プロジェクト共通で適用したい開発原則（憲法�
 - プロジェクト間で原則の整合性を取りたいとき
 - 既に carta が適用されたリポジトリで「最新版に更新」と求められたとき
 - 言語/フレームワーク別のプロファイル（typescript / flutter 等）を連結適用したいとき
+- carta 導入直後の CLAUDE.md からマーカー外に残った重複記述を整理したいとき（`/carta:migrate`）
 
 ## 提供するスラッシュコマンド
 
@@ -22,6 +23,7 @@ carta は **全プロジェクト共通で適用したい開発原則（憲法�
 | `/carta:apply [<path>] [--profile <names>] [--force]` | 対象 CLAUDE.md に最新の憲法（+ 指定プロファイル）を適用 / 同期する |
 | `/carta:show [--meta] [--profile <name>]` | 現在バンドルされている憲法本体（または指定プロファイル本文）を表示する |
 | `/carta:diff [<path>] [--profile <names>]` | apply の dry-run。差分のみ表示し書き込まない |
+| `/carta:migrate [<path>] [--profile <names>] [--include-medium] [--apply]` | マーカー外から憲法と意味的に重複する記述を検出し、削除候補を提示する（carta 導入直後の掃除用。デフォルト dry-run） |
 | `/carta:help` | プラグインの全コマンド・使い方・マーカー仕様の要点を表示する |
 
 ## マーカー仕様
@@ -94,6 +96,9 @@ CLAUDE.md 内に以下のマーカーで囲まれた領域だけを carta が管
 - 連結区切り（part 末尾 LF + `\n---\n\n`）を別の文字列に変える
 - プロファイル本文の先頭マーカーコメント `<!-- carta-profile: NAME -->` の書式を変更する（**凍結された定数**）
 - 「sha 不一致でも body 一致なら idempotent」フォールバックを入れる（手編集検出の安全性が壊れる）
+- `/carta:migrate` がマーカー外への新規追記をする（migrate は **削除のみ**。言い換え保持はしない）
+- `/carta:migrate` で LOW 確信度の候補を自動削除する（LOW はいかなる場合も削除候補にならない。参考表示のみ）
+- `/carta:migrate` で MEDIUM 候補を `--include-medium` 無しに削除候補へ昇格させる（デフォルトは HIGH のみ）
 
 ## バージョン同期
 
