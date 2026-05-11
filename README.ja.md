@@ -68,6 +68,7 @@ assets/constitution.md  ── /carta:apply ──>  <project>/CLAUDE.md
 | `/carta:apply [<path>] [--profile <names>] [--force]` | 対象の `CLAUDE.md` に最新の憲法（+ 指定プロファイル）を適用する。書き込み前に diff を提示して承認を取る |
 | `/carta:show [--meta] [--profile <name>]` | このプラグインにバンドルされている憲法本体（または指定プロファイル本文）を表示する。`--meta` で 1 行ヘッダも併記 |
 | `/carta:diff [<path>] [--profile <names>]` | `/carta:apply` の dry-run。差分のみ表示し、書き込まない |
+| `/carta:help` | プラグインの全コマンド・使い方・マーカー仕様の要点を 1 画面で表示する。表示のみ |
 
 引数なしの場合は `git rev-parse --show-toplevel` で解決したリポジトリ root の `CLAUDE.md` が対象になる。
 

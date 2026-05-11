@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - <YYYY-MM-DD>
+
+### Added
+- `/carta:help` — プラグインの全コマンド・典型ワークフロー・マーカー仕様の要点を 1 画面で表示する表示専用コマンドを追加。引数なし、`allowed-tools: Read` のみで Bash 不要。
+- SKILL.md の「提供するスラッシュコマンド」表と README.md / README.ja.md のコマンド表に `/carta:help` 行を追記。
+
+### Notes
+- v0.3.0 のスコープ外: `/carta:help <topic>` のような topic 引数、`--verbose` / `--examples` 等のフラグ、出力の i18n / 動的内容生成（`${CLAUDE_PLUGIN_ROOT}` 解決を除く）。
+- `<YYYY-MM-DD>` は release コマンド運用（`.claude/commands/release.md` 参照）で書き換える。Implementer はこのままコミットしてよい。
+
 ## [0.2.0] - 2026-05-11
 
 ### Added

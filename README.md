@@ -68,6 +68,7 @@ Bundle-only optional add-ons that get concatenated to the default constitution a
 | `/carta:apply [<path>] [--profile <names>] [--force]` | Apply the latest constitution (+ chosen profiles) to the target `CLAUDE.md`. Shows a diff first and waits for approval. |
 | `/carta:show [--meta] [--profile <name>]` | Print the constitution body (or a single profile body) bundled with this plugin. `--meta` adds a one-line header. |
 | `/carta:diff [<path>] [--profile <names>]` | Dry run of `/carta:apply` — show the diff but don't write. |
+| `/carta:help` | Print the command list, common usage examples, and marker spec summary. Display only. |
 
 By default, the target is the current repository's `CLAUDE.md` (resolved via `git rev-parse --show-toplevel`). Pass a path to target a different file.
 

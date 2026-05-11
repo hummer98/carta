@@ -10,7 +10,7 @@
       "name": "carta",
       "source": "./",
       "description": "統一的な開発憲法 (constitution) を保持し、各プロジェクトの CLAUDE.md に適用・同期する Claude Code Plugin。",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "author": {
         "name": "hummer98"
       },

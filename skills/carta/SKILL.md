@@ -22,6 +22,7 @@ carta は **全プロジェクト共通で適用したい開発原則（憲法�
 | `/carta:apply [<path>] [--profile <names>] [--force]` | 対象 CLAUDE.md に最新の憲法（+ 指定プロファイル）を適用 / 同期する |
 | `/carta:show [--meta] [--profile <name>]` | 現在バンドルされている憲法本体（または指定プロファイル本文）を表示する |
 | `/carta:diff [<path>] [--profile <names>]` | apply の dry-run。差分のみ表示し書き込まない |
+| `/carta:help` | プラグインの全コマンド・使い方・マーカー仕様の要点を表示する |
 
 ## マーカー仕様
 
