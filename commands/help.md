@@ -20,6 +20,7 @@ carta プラグインの全コマンド・使い方・マーカー仕様の要�
 | /carta:apply [<path>] [--profile <names>] [--force] | 対象 CLAUDE.md に憲法を適用 |
 | /carta:diff [<path>] [--profile <names>] | apply の dry-run（書き込まない） |
 | /carta:show [--meta] [--profile <name>] | 憲法本体 / プロファイル本文を表示 |
+| /carta:list | バンドル済みプロファイルの一覧を表示 |
 | /carta:migrate [<path>] [--profile <names>] [--include-medium] [--apply] | マーカー外の重複記述を検出し削除候補を提示（デフォルト dry-run） |
 | /carta:help | このヘルプを表示 |
 

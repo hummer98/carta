@@ -1,4 +1,5 @@
 <!-- carta-profile: flutter -->
+<!-- carta-summary: Flutter プロファイル（プレースホルダ） -->
 
 ## Flutter プロファイル
 

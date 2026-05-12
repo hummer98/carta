@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# carta-list — assets/profiles/*.md を走査し、名前と 1 行要約を一覧表示する。
+# 引数は受け取らない。読み込み専用。
+#
+# 要約抽出の優先順:
+#   1. ファイル内最初の `<!-- carta-summary: <text> -->` 行（推奨。通常は 2 行目）
+#   2. ファイル内最初の `## <heading>` 行（フォールバック）
+#   3. どちらも無ければ空白
+set -euo pipefail
+
+ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+PROFILES_DIR="$ROOT/assets/profiles"
+
+shopt -s nullglob
+files=("$PROFILES_DIR"/*.md)
+shopt -u nullglob
+
+if [ ${#files[@]} -eq 0 ]; then
+  echo "[carta] no profiles installed"
+  exit 0
+fi
+
+# 名前列の幅 = 最長プロファイル名 + 2
+max=0
+for f in "${files[@]}"; do
+  n=$(basename "$f" .md)
+  if [ ${#n} -gt "$max" ]; then max=${#n}; fi
+done
+pad=$((max + 2))
+
+echo "[carta] available profiles (${#files[@]})"
+echo
+
+# 名前+要約を sort し、固定幅でフォーマット
+{
+  for f in "${files[@]}"; do
+    name=$(basename "$f" .md)
+    desc=$(sed -n -E 's/^<!-- carta-summary:[[:space:]]*(.+) -->[[:space:]]*$/\1/p' "$f" | head -n1)
+    if [ -z "$desc" ]; then
+      desc=$(sed -n -E 's/^## (.+)$/\1/p' "$f" | head -n1)
+    fi
+    printf '%s\t%s\n' "$name" "$desc"
+  done
+} | LC_ALL=C sort | awk -F'\t' -v pad="$pad" '{printf "  %-*s%s\n", pad, $1, $2}'
+
+echo
+echo "usage:"
+echo "  /carta:show --profile <name>      単一プロファイル本文を表示"
+echo "  /carta:apply --profile <names>    カンマ区切りで連結適用"

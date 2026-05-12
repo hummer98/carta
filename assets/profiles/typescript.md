@@ -1,4 +1,5 @@
 <!-- carta-profile: typescript -->
+<!-- carta-summary: TypeScript プロファイル（プレースホルダ） -->
 
 ## TypeScript プロファイル
 

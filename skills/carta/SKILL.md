@@ -22,6 +22,7 @@ carta は **全プロジェクト共通で適用したい開発原則（憲法�
 |---|---|
 | `/carta:apply [<path>] [--profile <names>] [--force]` | 対象 CLAUDE.md に最新の憲法（+ 指定プロファイル）を適用 / 同期する |
 | `/carta:show [--meta] [--profile <name>]` | 現在バンドルされている憲法本体（または指定プロファイル本文）を表示する |
+| `/carta:list` | バンドル済みプロファイルの一覧（名前 + 1 行要約）を表示する |
 | `/carta:diff [<path>] [--profile <names>]` | apply の dry-run。差分のみ表示し書き込まない |
 | `/carta:migrate [<path>] [--profile <names>] [--include-medium] [--apply]` | マーカー外から憲法と意味的に重複する記述を検出し、削除候補を提示する（carta 導入直後の掃除用。デフォルト dry-run） |
 | `/carta:help` | プラグインの全コマンド・使い方・マーカー仕様の要点を表示する |
@@ -62,6 +63,7 @@ CLAUDE.md 内に以下のマーカーで囲まれた領域だけを carta が管
 - 存在しないプロファイル名を指定するとエラーで停止する（自動作成しない）
 - v0.1.0 マーカー（`profiles=` 属性なし）はプロファイルなしとして互換動作する
 - **show は非対称**: `/carta:show --profile=` は name 必須エラー。デフォルト憲法を見たい場合は `/carta:show`（引数なし）を使う
+- **`carta-summary` フィールド（任意）**: プロファイル 2 行目に `<!-- carta-summary: <1 行要約> -->` を置くと `/carta:list` の description として表示される。1 行目 `<!-- carta-profile: NAME -->` は凍結だが 2 行目は任意・追加可能
 
 ### 連結フォーマット
 

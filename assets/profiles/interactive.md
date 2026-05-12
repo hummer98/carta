@@ -1,4 +1,5 @@
 <!-- carta-profile: interactive -->
+<!-- carta-summary: 対話セッション運用（サマリ規約 / UI 実機確認） -->
 
 ## 対話セッション運用
 

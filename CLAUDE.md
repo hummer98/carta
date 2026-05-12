@@ -1,4 +1,4 @@
-<!-- carta:begin v0.3.0 sha=c52ec08 profiles=interactive -->
+<!-- carta:begin v0.3.0 sha=79ca94c profiles=interactive -->
 <!--
 carta-constitution
 version: 0.3.0
@@ -40,6 +40,7 @@ maintainer: hummer98
 ---
 
 <!-- carta-profile: interactive -->
+<!-- carta-summary: 対話セッション運用（サマリ規約 / UI 実機確認） -->
 
 ## 対話セッション運用
 

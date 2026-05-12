@@ -437,9 +437,28 @@ apply / diff / show の引数仕様は §4 / commands/{apply,diff,show}.md を�
 
 以下はリリース後に **絶対に変更しない**。書式が変わると既存 CLAUDE.md の sha が破壊される:
 
-- プロファイル本文先頭の `<!-- carta-profile: NAME -->` 書式
+- プロファイル本文先頭の `<!-- carta-profile: NAME -->` 書式（**1 行目のみ**凍結）
 - 連結区切り文字列: 各 part 末尾 LF + `"\n---\n\n"`（6 byte リテラル）
 - 末尾改行ポリシー: `assets/constitution.md` および `assets/profiles/*.md` は常に末尾 LF 1 個で保存する運用ルール（`.editorconfig` は新規作成しない方針）
+
+2 行目以降のプロファイル本文（`carta-summary` を含む）は **凍結対象外** で、改訂時に sha が変わるのは想定動作。`/carta:apply` の再実行で同期される。
+
+### 15.8 carta-summary（要約フィールド・v0.4.0 で追加）
+
+プロファイル本文の **2 行目** に任意で 1 行コメントを置ける:
+
+```
+<!-- carta-profile: <name> -->
+<!-- carta-summary: <1 行要約> -->
+
+## ...
+```
+
+- 形式: `<!-- carta-summary: <summary text> -->`（capture 範囲は `<!--\s*carta-summary:\s*` から ` -->` の直前まで）
+- 置き場所: 慣習として 2 行目。`/carta:list` は「ファイル内最初の `carta-summary` 行」を採用する
+- 用途: `/carta:list` の description 列に表示する 1 行要約
+- 互換性: 任意フィールド。無いプロファイルは `/carta:list` が最初の `^## ` 見出しにフォールバックする
+- `/carta:show` の表示には影響しない（本文の一部としてそのまま出力される）
 
 ---
 
