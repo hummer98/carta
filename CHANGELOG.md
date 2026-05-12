@@ -4,15 +4,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.0] - <YYYY-MM-DD>
+## [0.3.0] - 2026-05-12
 
 ### Added
-- `/carta:help` — プラグインの全コマンド・典型ワークフロー・マーカー仕様の要点を 1 画面で表示する表示専用コマンドを追加。引数なし、`allowed-tools: Read` のみで Bash 不要。
-- SKILL.md の「提供するスラッシュコマンド」表と README.md / README.ja.md のコマンド表に `/carta:help` 行を追記。
+- `/carta:help` — プラグインの全コマンド・典型ワークフロー・マーカー仕様の要点を 1 画面で表示する表示専用コマンド。
+- `/carta:migrate` — マーカー外に残った憲法重複記述を検出して削除候補を提示するコマンド（carta 導入直後の掃除用、デフォルト dry-run、`--include-medium` で MEDIUM 候補も含む、`--apply` で実適用）。
+- `/carta:list` — バンドル済みプロファイルの一覧（名前 + 1 行要約）を表示するコマンド。実体は `bin/carta-list` POSIX shell スクリプト（Claude を介さず直接実行されるため高速）。
+- `assets/profiles/interactive.md` — 対話セッション専用ルール（ターン末尾サマリ規約 / UI dev server 実機確認）をプロファイルとして分離。elevens / OpenClaw / AutoClaude 等の全自動オーケストレーター配下では本プロファイルを外す。
+- `<!-- carta-summary: ... -->` 任意フィールド — プロファイル本文 2 行目に置くと `/carta:list` の description として表示される（凍結対象外、§15.8）。
+- `bin/` ディレクトリ — seed.md §7 で計画されていた shell スクリプト置き場が `bin/carta-list` で実体化。
+- 憲法 §4「可観測性とロギング」— 言語非依存の観測原則（空 `catch` 禁止、外部コマンド失敗時に `stderr` / `stdout` を含める、機密情報をログに含めない、高頻度ループでのノイズ抑制）。
+
+### Changed
+- 憲法本体 `assets/constitution.md` を Opus 4.7 のシステムプロンプトと整合する形に整理:
+  - 旧 §2 コード品質 / §4 Git ワークフロー / §5 AI 協業の心得 を削除（システムプロンプトと完全重複）
+  - 旧 §1 のサマリ規約「サマリを書かない」→「1–2 文に収める」に変更（システムプロンプトの End-of-turn summary と整合）
+  - 旧 §3 テスト・§5 から汎用部分を整理して §2「テストと完了基準」に集約
+  - §3「ツール運用」を新設（独立 tool call の並列発行ルール）
+- メタコメントに `note:` 行を追加し、対話前提ルールが `interactive` プロファイルに分離されたことを明示。
+- `docs/seed.md` §15.7「凍結された定数」を「プロファイル 1 行目のみ凍結」に明確化、§15.8 を新設して `carta-summary` 仕様を文書化。
+
+### Compatibility
+- v0.2.0 のマーカー形式（`profiles=` 属性あり / なし）は引き続き互換動作する。
+- 憲法本体 sha は変化する（profiles 空時の v0.2.0 値 `f0c10c8` → v0.3.0 値 `8a35bff`、interactive 連結時は `79ca94c`）。既存 CLAUDE.md は `/carta:apply` 再実行で同期される。
+- v0.2.0 の不変条件「profiles 空時の連結結果は `cat assets/constitution.md` と byte-for-byte 一致」は維持される。
+- プロファイル 1 行目 `<!-- carta-profile: NAME -->` は引き続き凍結。2 行目 `<!-- carta-summary: ... -->` は任意・凍結対象外。
 
 ### Notes
-- v0.3.0 のスコープ外: `/carta:help <topic>` のような topic 引数、`--verbose` / `--examples` 等のフラグ、出力の i18n / 動的内容生成（`${CLAUDE_PLUGIN_ROOT}` 解決を除く）。
-- `<YYYY-MM-DD>` は release コマンド運用（`.claude/commands/release.md` 参照）で書き換える。Implementer はこのままコミットしてよい。
+- `--list-profiles` は引き続き提供しない（`/carta:list` が独立コマンドとして担当）。
+- `/carta:migrate` は **削除のみ**で、マーカー外への新規追記は行わない（責務分離）。`--force` は受け付けない（apply 側で先に同期する）。
+- `/carta:list` の出力は `assets/profiles/*.md` をアルファベット順に走査し、description は `carta-summary` → 最初の H2 見出しの優先順で抽出する。
 
 ## [0.2.0] - 2026-05-11
 
